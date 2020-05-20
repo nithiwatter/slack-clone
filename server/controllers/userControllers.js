@@ -11,7 +11,7 @@ exports.register = async (req, res, next) => {
     });
   } catch (err) {
     console.log(err);
-    res.status(404).send({
+    res.status(400).send({
       status: 'failure',
     });
   }
