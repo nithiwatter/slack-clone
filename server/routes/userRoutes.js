@@ -5,9 +5,12 @@ const userRouter = express.Router();
 
 userRouter.post('/register', userController.register);
 userRouter.post('/login', userController.login);
-userRouter.get('/protected', userController.protect, (req, res) => {
+userRouter.get('/verify', userController.protect, (req, res) => {
   console.log(req.user);
-  res.send('Access granted.');
+  res.status(200).json({
+    status: 'success',
+    user: req.user,
+  });
 });
 
 module.exports = userRouter;

@@ -99,7 +99,9 @@ class Register extends Component {
         });
       } else {
         const { data } = await axios.post('/api/users/register', {
-          ...this.state,
+          name,
+          username,
+          password,
         });
         this.props.handleAuth(data.token);
       }

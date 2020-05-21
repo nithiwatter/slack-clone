@@ -8,6 +8,7 @@ import LockOpenIcon from '@material-ui/icons/LockOpen';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { Redirect } from 'react-router-dom';
 import axios from 'axios';
 
 const styles = (theme) => ({
@@ -82,9 +83,11 @@ class Login extends Component {
           helperPasswordText,
         });
       } else {
-        console.log(this.state);
-        // await axios.post('/api/users/register', { ...this.state });
-        // this.props.history.push('/');
+        const { data } = await axios.post('/api/users/login', {
+          username,
+          password,
+        });
+        this.props.handleAuth(data.token);
       }
     } catch (err) {
       this.setState({
@@ -97,7 +100,7 @@ class Login extends Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { classes, user } = this.props;
     const {
       username,
       password,
@@ -106,6 +109,9 @@ class Login extends Component {
       errorPassword,
       helperPasswordText,
     } = this.state;
+
+    if (user) return <Redirect to="/"></Redirect>;
+
     return (
       <Container component="main" maxWidth="xs">
         <div className={classes.paper}>

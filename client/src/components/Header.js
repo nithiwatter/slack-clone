@@ -63,8 +63,7 @@ class Header extends Component {
                 <Button
                   className={classes.button}
                   color="inherit"
-                  component={Link}
-                  to="/register"
+                  onClick={this.props.handleLogOut}
                 >
                   Log Out
                 </Button>
