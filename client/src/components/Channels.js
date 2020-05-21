@@ -8,8 +8,12 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import WorkIcon from '@material-ui/icons/Work';
 import Typography from '@material-ui/core/Typography';
-
-const channels = ['general', 'A', 'C', 'D'];
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from '@material-ui/core/Dialog';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import AddIcon from '@material-ui/icons/Add';
+import IconButton from '@material-ui/core/IconButton';
 
 const styles = (theme) => ({
   root: {
@@ -23,41 +27,88 @@ const styles = (theme) => ({
   },
   title: {
     color: 'white',
+    marginLeft: theme.spacing(2),
   },
   channels: {
     backgroundColor: theme.palette.grey['700'],
     color: 'white',
   },
+  addButton: {
+    marginLeft: 'auto',
+    marginRight: theme.spacing(2),
+    color: 'white',
+    backgroundColor: theme.palette.grey['900'],
+  },
 });
 
-class Channel extends Component {
+class Channels extends Component {
   state = {};
   render() {
-    const { classes } = this.props;
+    const {
+      classes,
+      channels,
+      currentTeam,
+      open,
+      channelName,
+      err,
+      errText,
+      handleOpen,
+      handleClose,
+      handleInputChange,
+      currentTeamId,
+      handleSubmit,
+    } = this.props;
     return (
       <div className={classes.root}>
-        <Typography className={classes.title} align="center" variant="h5">
-          Channels
-        </Typography>
+        <Grid container alignItems="center">
+          <Typography className={classes.title} align="center" variant="h5">
+            {currentTeam}
+          </Typography>
+          <IconButton
+            size="small"
+            className={classes.addButton}
+            onClick={handleOpen}
+          >
+            <AddIcon></AddIcon>
+          </IconButton>
+        </Grid>
+
         <Grid container spacing={0} justify="center">
           <Grid item xs={12}>
             <List className={classes.root}>
-              {channels.map((channel, index) => (
-                <ListItem className={classes.channels} key={index} button>
+              {channels.map((channel) => (
+                <ListItem className={classes.channels} key={channel._id} button>
                   <ListItemAvatar>
                     <Avatar>
                       <WorkIcon />
                     </Avatar>
                   </ListItemAvatar>
-                  <ListItemText primary={channel} />
+                  <ListItemText primary={channel.name} />
                 </ListItem>
               ))}
             </List>
           </Grid>
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Type Your Channel Name</DialogTitle>
+            <TextField
+              style={{ margin: '1rem 1rem' }}
+              id="standard-basic"
+              label="Channel Name"
+              autoComplete="off"
+              onChange={handleInputChange}
+              value={channelName}
+              error={err}
+              helperText={errText}
+              autoComplete="off"
+            ></TextField>
+            <Button onClick={() => handleSubmit(currentTeamId, channelName)}>
+              Add Me
+            </Button>
+          </Dialog>
         </Grid>
       </div>
     );
   }
 }
 
-export default withStyles(styles)(Channel);
+export default withStyles(styles)(Channels);

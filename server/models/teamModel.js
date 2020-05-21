@@ -12,5 +12,15 @@ const teamSchema = new mongoose.Schema({
   },
 });
 
+teamSchema.virtual('channels', {
+  ref: 'Channel',
+  localField: '_id',
+  foreignField: 'teamId',
+  justOne: false,
+});
+
+teamSchema.set('toObject', { virtuals: true });
+teamSchema.set('toJSON', { virtuals: true });
+
 const Team = mongoose.model('Team', teamSchema);
 module.exports = Team;

@@ -9,6 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import { Link } from 'react-router-dom';
 
 const styles = (theme) => ({
   root: {
@@ -18,6 +19,7 @@ const styles = (theme) => ({
   },
   teamIcons: {
     backgroundColor: theme.palette.secondary.main,
+    border: '1px solid red',
   },
   title: {
     color: 'white',
@@ -29,10 +31,6 @@ const styles = (theme) => ({
 });
 
 class Team extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       classes,
@@ -90,7 +88,9 @@ class Team extends Component {
                 style={{ marginBottom: '1rem' }}
                 justify="center"
               >
-                <Avatar className={classes.teamIcons}>{team.name[0]}</Avatar>
+                <Link style={{ textDecoration: 'none' }} to={`/${team.name}`}>
+                  <Avatar className={classes.teamIcons}>{team.name[0]}</Avatar>
+                </Link>
               </Grid>
             ))}
           </div>
@@ -106,6 +106,7 @@ class Team extends Component {
             value={teamName}
             error={err}
             helperText={errText}
+            autoComplete="off"
           ></TextField>
           <Button
             onClick={() => {

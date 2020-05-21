@@ -4,6 +4,7 @@ import Teams from '../components/Teams';
 import Channels from '../components/Channels';
 import requests from '../utils/requests';
 import axios from 'axios';
+import findIndex from 'lodash/findIndex';
 
 class SidebarContainer extends Component {
   constructor(props) {
@@ -14,18 +15,30 @@ class SidebarContainer extends Component {
       teamName: '',
       err: false,
       errText: '',
+      loading: true,
+      channelName: '',
+      openCh: false,
+      errCh: false,
+      errTextCh: '',
     };
     this.handleOpen = this.handleOpen.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleAddTeam = this.handleAddTeam.bind(this);
+
+    this.handleOpenCh = this.handleOpenCh.bind(this);
+    this.handleCloseCh = this.handleCloseCh.bind(this);
+    this.handleInputChangeCh = this.handleInputChangeCh.bind(this);
+    this.handleAddChannel = this.handleAddChannel.bind(this);
   }
 
   async componentDidMount() {
     const { data } = await axios.get('/api/teams', {
       headers: requests.setTokenHeadersOptions(),
     });
-    this.setState({ teams: data.teams });
+    const teams = data.teams;
+
+    this.setState({ teams, loading: false });
   }
 
   handleOpen() {
@@ -37,8 +50,19 @@ class SidebarContainer extends Component {
   }
 
   handleInputChange(e) {
-    console.log(this.state);
     this.setState({ teamName: e.target.value });
+  }
+
+  handleOpenCh() {
+    this.setState({ openCh: true });
+  }
+
+  handleCloseCh() {
+    this.setState({ openCh: false });
+  }
+
+  handleInputChangeCh(e) {
+    this.setState({ channelName: e.target.value });
   }
 
   async handleAddTeam(teamName) {
@@ -48,7 +72,6 @@ class SidebarContainer extends Component {
         { name: teamName },
         { headers: requests.setTokenHeadersOptions() }
       );
-      console.log(data);
       this.setState({
         teams: [...this.state.teams, data.team],
         open: false,
@@ -64,8 +87,62 @@ class SidebarContainer extends Component {
     }
   }
 
+  async handleAddChannel(teamId, channelName) {
+    try {
+      const { data } = await axios.post(
+        '/api/teams/createChannel',
+        { name: channelName, teamId },
+        { headers: requests.setTokenHeadersOptions() }
+      );
+      this.setState({
+        openCh: false,
+        errCh: false,
+        errTextCh: '',
+        channelName: '',
+      });
+      // this.setState({
+      //   teams: [...this.state.teams, data.team],
+      //   open: false,
+      //   teamName: '',
+      //   err: false,
+      //   errText: '',
+      // });
+    } catch (err) {
+      this.setState({
+        errCh: true,
+        errTextCh: 'You already have a channel with this name.',
+      });
+    }
+  }
+
   render() {
-    const { teams, open, teamName, err, errText } = this.state;
+    const { currentTeamName } = this.props;
+    const {
+      teams,
+      open,
+      teamName,
+      err,
+      errText,
+      loading,
+      openCh,
+      errCh,
+      errTextCh,
+      channelName,
+    } = this.state;
+
+    const currentTeamIdx = currentTeamName
+      ? findIndex(teams, ['name', currentTeamName])
+      : 0;
+
+    let channels = [];
+    let currentTeam = '';
+    let currentTeamId = '';
+    if (!loading) {
+      currentTeam = teams[currentTeamIdx].name;
+      channels = teams[currentTeamIdx].channels;
+      currentTeamId = teams[currentTeamIdx]._id;
+    }
+
     return (
       <React.Fragment>
         <Grid item xs={2} lg={1}>
@@ -82,7 +159,19 @@ class SidebarContainer extends Component {
           ></Teams>
         </Grid>
         <Grid item xs={3} lg={2}>
-          <Channels></Channels>
+          <Channels
+            channels={channels}
+            currentTeam={currentTeam}
+            currentTeamId={currentTeamId}
+            open={openCh}
+            channelName={channelName}
+            err={errCh}
+            errText={errTextCh}
+            handleOpen={this.handleOpenCh}
+            handleClose={this.handleCloseCh}
+            handleInputChange={this.handleInputChangeCh}
+            handleSubmit={this.handleAddChannel}
+          ></Channels>
         </Grid>
       </React.Fragment>
     );

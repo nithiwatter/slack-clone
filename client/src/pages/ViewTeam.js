@@ -3,12 +3,13 @@ import Grid from '@material-ui/core/Grid';
 import SidebarContainer from '../containers/SidebarContainer';
 
 class ViewTeam extends Component {
-  state = {};
   render() {
+    const { teamName } = this.props.match.params;
+
     return (
       <div>
         <Grid container spacing={0}>
-          <SidebarContainer></SidebarContainer>
+          <SidebarContainer currentTeamName={teamName}></SidebarContainer>
           <Grid item xs={4}>
             Messaging Area
           </Grid>

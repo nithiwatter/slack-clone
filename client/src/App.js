@@ -43,7 +43,7 @@ class App extends Component {
   }
 
   render() {
-    const { user, loading } = this.state;
+    const { user } = this.state;
 
     return (
       <BrowserRouter>
@@ -56,11 +56,6 @@ class App extends Component {
         >
           <Header user={user} handleLogOut={this.handleLogOut}></Header>
           <Switch>
-            <Route
-              path="/"
-              exact
-              render={(props) => <ViewTeam {...props}></ViewTeam>}
-            ></Route>
             <Route
               path="/register"
               exact
@@ -82,6 +77,11 @@ class App extends Component {
                   user={user}
                 ></Login>
               )}
+            ></Route>
+            <Route
+              path="/:teamName?/:channelName?"
+              exact
+              render={(props) => <ViewTeam {...props}></ViewTeam>}
             ></Route>
           </Switch>
         </div>
