@@ -99,7 +99,6 @@ class Channels extends Component {
               value={channelName}
               error={err}
               helperText={errText}
-              autoComplete="off"
             ></TextField>
             <Button onClick={() => handleSubmit(currentTeamId, channelName)}>
               Add Me
