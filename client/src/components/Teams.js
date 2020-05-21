@@ -10,8 +10,6 @@ import Dialog from '@material-ui/core/Dialog';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 
-const teams = ['A', 'B', 'C', 'D'];
-
 const styles = (theme) => ({
   root: {
     backgroundColor: theme.palette.grey['900'],
@@ -19,7 +17,6 @@ const styles = (theme) => ({
     paddingTop: theme.spacing(2),
   },
   teamIcons: {
-    marginTop: theme.spacing(2),
     backgroundColor: theme.palette.secondary.main,
   },
   title: {
@@ -28,67 +25,95 @@ const styles = (theme) => ({
   addButton: {
     color: 'white',
     backgroundColor: theme.palette.grey['800'],
-    marginTop: theme.spacing(2),
   },
 });
 
 class Team extends Component {
   constructor(props) {
     super(props);
-    this.state = { open: false, teamName: '' };
-    this.handleAddTeam = this.handleAddTeam.bind(this);
-    this.handleClose = this.handleClose.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-  }
-
-  handleAddTeam() {
-    this.setState({ open: true });
-  }
-
-  handleClose() {
-    this.setState({ open: false });
-  }
-
-  handleInputChange(e) {
-    this.setState({ teamName: e.target.value });
   }
 
   render() {
-    const { classes } = this.props;
-    const { open, teamName } = this.state;
+    const {
+      classes,
+      teams,
+      open,
+      teamName,
+      err,
+      errText,
+      handleOpen,
+      handleClose,
+      handleInputChange,
+      handleAddTeam,
+    } = this.props;
+    //const {} = this.state;
     return (
       <div className={classes.root}>
-        <Typography className={classes.title} align="center" variant="h5">
-          Teams
-        </Typography>
-        <Grid container justify="center">
+        <Grid
+          container
+          alignItems="center"
+          justify="space-evenly"
+          style={{ marginBottom: '2rem' }}
+        >
+          <Typography
+            className={classes.title}
+            align="center"
+            variant="subtitle1"
+          >
+            Teams
+          </Typography>
           <IconButton
             size="small"
             className={classes.addButton}
-            onClick={this.handleAddTeam}
+            onClick={handleOpen}
           >
             <AddIcon></AddIcon>
           </IconButton>
         </Grid>
 
-        <Grid container spacing={0} justify="center">
-          {teams.map((team, index) => (
-            <Grid container justify="center" item xs={12} key={index}>
-              <Avatar className={classes.teamIcons}>{team}</Avatar>
-            </Grid>
-          ))}
-        </Grid>
+        <div
+          style={{
+            height: '70vh',
+            overflow: 'auto',
+          }}
+        >
+          <div
+            style={{
+              minHeight: '100%',
+              width: '100%',
+            }}
+          >
+            {teams.map((team, index) => (
+              <Grid
+                key={team._id}
+                container
+                style={{ marginBottom: '1rem' }}
+                justify="center"
+              >
+                <Avatar className={classes.teamIcons}>{team.name[0]}</Avatar>
+              </Grid>
+            ))}
+          </div>
+        </div>
 
-        <Dialog open={open} onClose={this.handleClose}>
+        <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Type Your Team Name</DialogTitle>
           <TextField
             style={{ margin: '1rem 1rem' }}
             id="standard-basic"
             label="Team Name"
-            onChange={this.handleInputChange}
+            onChange={handleInputChange}
             value={teamName}
+            error={err}
+            helperText={errText}
           ></TextField>
-          <Button>Add Me</Button>
+          <Button
+            onClick={() => {
+              handleAddTeam(teamName);
+            }}
+          >
+            Add Me
+          </Button>
         </Dialog>
       </div>
     );

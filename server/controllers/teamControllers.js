@@ -3,10 +3,10 @@ const AppError = require('../utils/appError');
 
 exports.getTeams = async (req, res, next) => {
   try {
-    const { ownerId } = req.body;
-    console.log(req.body);
+    // from passing through the protect middleware
+    const ownerId = req.user._id;
     const teams = await Team.find({ ownerId });
-    console.log(ownerId, teams);
+
     res.status(200).send({
       status: 'success',
       teams,
@@ -18,7 +18,8 @@ exports.getTeams = async (req, res, next) => {
 
 exports.createTeam = async (req, res, next) => {
   try {
-    const { name, ownerId } = req.body;
+    const { name } = req.body;
+    const ownerId = req.user._id;
     if (await Team.findOne({ name, ownerId })) {
       return next(new AppError('A team with this name already exists.', 400));
     }

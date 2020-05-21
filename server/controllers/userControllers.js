@@ -39,7 +39,6 @@ exports.login = async (req, res, next) => {
 
 exports.protect = async (req, res, next) => {
   try {
-    console.log(req.headers['authorization']);
     if (!req.headers['authorization'])
       return next(new AppError('No token sent.', 400));
 
