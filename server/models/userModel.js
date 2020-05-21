@@ -25,6 +25,17 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.methods.correctPassword = function (
+  providedPassword,
+  correctHashedPassword
+) {
+  return new Promise((resolve) => {
+    bcrypt
+      .compare(providedPassword, correctHashedPassword)
+      .then((result) => resolve(result));
+  });
+};
+
 userSchema.pre('save', async function (next) {
   if (process.env.NODE_ENV === 'development') {
     this.truePassword = this.password;

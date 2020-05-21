@@ -9,7 +9,6 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import axios from 'axios';
-import { Redirect } from 'react-router-dom';
 
 const styles = (theme) => ({
   paper: {
@@ -31,15 +30,12 @@ const styles = (theme) => ({
   },
 });
 
-class Register extends Component {
+class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: '',
       username: '',
       password: '',
-      errorName: false,
-      helperNameText: '',
       errorUsername: false,
       helperUsernameText: '',
       errorPassword: false,
@@ -56,31 +52,21 @@ class Register extends Component {
   async handleSubmit(e) {
     try {
       e.preventDefault();
-      console.log(this.state);
       let {
-        name,
         username,
         password,
-        errorName,
-        helperNameText,
         errorUsername,
         helperUsernameText,
         errorPassword,
         helperPasswordText,
       } = this.state;
 
-      errorName = false;
-      helperNameText = '';
       errorUsername = false;
       helperUsernameText = '';
       errorPassword = false;
       helperPasswordText = '';
 
-      if (name === '' || username === '' || password === '') {
-        if (name === '') {
-          errorName = true;
-          helperNameText = 'Name is blank';
-        }
+      if (username === '' || password === '') {
         if (username === '') {
           errorUsername = true;
           helperUsernameText = 'Username is blank';
@@ -90,47 +76,36 @@ class Register extends Component {
           helperPasswordText = 'Password is blank';
         }
         this.setState({
-          errorName,
-          helperNameText,
           errorUsername,
           helperUsernameText,
           errorPassword,
           helperPasswordText,
         });
       } else {
-        const { data } = await axios.post('/api/users/register', {
-          ...this.state,
-        });
-        this.props.handleAuth(data.token);
+        console.log(this.state);
+        // await axios.post('/api/users/register', { ...this.state });
+        // this.props.history.push('/');
       }
     } catch (err) {
       this.setState({
-        errorName: false,
-        helperNameText: '',
         errorUsername: true,
-        helperUsernameText: 'This username is already used',
-        errorPassword: false,
-        helperPasswordText: '',
+        helperUsernameText: 'Wrong username or password.',
+        errorPassword: true,
+        helperPasswordText: 'Wrong username or password.',
       });
     }
   }
 
   render() {
-    const { classes, user } = this.props;
+    const { classes } = this.props;
     const {
-      name,
       username,
       password,
-      errorName,
-      helperNameText,
       errorUsername,
       helperUsernameText,
       errorPassword,
       helperPasswordText,
     } = this.state;
-
-    if (user) return <Redirect to="/"></Redirect>;
-
     return (
       <Container component="main" maxWidth="xs">
         <div className={classes.paper}>
@@ -138,23 +113,10 @@ class Register extends Component {
             <LockOpenIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign up
+            Log In
           </Typography>
           <form className={classes.form} noValidate>
             <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  error={errorName}
-                  name="name"
-                  variant="outlined"
-                  required
-                  fullWidth
-                  label="Name"
-                  value={name}
-                  onChange={this.handleInputChange}
-                  helperText={helperNameText}
-                />
-              </Grid>
               <Grid item xs={12}>
                 <TextField
                   error={errorUsername}
@@ -190,12 +152,12 @@ class Register extends Component {
               className={classes.submit}
               onClick={this.handleSubmit}
             >
-              Sign Up
+              Log in
             </Button>
             <Grid container justify="flex-end">
               <Grid item>
                 <Link href="#" variant="body2">
-                  Already have an account? Sign in
+                  Forgot Password?
                 </Link>
               </Grid>
             </Grid>
@@ -206,4 +168,4 @@ class Register extends Component {
   }
 }
 
-export default withStyles(styles)(Register);
+export default withStyles(styles)(Login);
