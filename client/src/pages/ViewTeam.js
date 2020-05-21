@@ -1,10 +1,19 @@
 import React, { Component } from 'react';
 import Grid from '@material-ui/core/Grid';
+import { Redirect } from 'react-router-dom';
 import SidebarContainer from '../containers/SidebarContainer';
 
 class ViewTeam extends Component {
+  constructor(props) {
+    super(props);
+    console.log('render view');
+  }
+
   render() {
     const { teamName } = this.props.match.params;
+    const { user } = this.props;
+
+    if (!user) return null;
 
     return (
       <div>

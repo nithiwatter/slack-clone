@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import { Link } from 'react-router-dom';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
-import WorkIcon from '@material-ui/icons/Work';
+import ChatIcon from '@material-ui/icons/Chat';
 import Typography from '@material-ui/core/Typography';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
@@ -28,6 +29,9 @@ const styles = (theme) => ({
   title: {
     color: 'white',
     marginLeft: theme.spacing(2),
+    [theme.breakpoints.down('md')]: {
+      ...theme.typography.subtitle2,
+    },
   },
   channels: {
     backgroundColor: theme.palette.grey['700'],
@@ -39,10 +43,14 @@ const styles = (theme) => ({
     color: 'white',
     backgroundColor: theme.palette.grey['900'],
   },
+  icons: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
 });
 
 class Channels extends Component {
-  state = {};
   render() {
     const {
       classes,
@@ -56,6 +64,7 @@ class Channels extends Component {
       handleClose,
       handleInputChange,
       currentTeamId,
+      currentTeamIdx,
       handleSubmit,
     } = this.props;
     return (
@@ -77,10 +86,16 @@ class Channels extends Component {
           <Grid item xs={12}>
             <List className={classes.root}>
               {channels.map((channel) => (
-                <ListItem className={classes.channels} key={channel._id} button>
-                  <ListItemAvatar>
+                <ListItem
+                  component={Link}
+                  to={`/${currentTeam}/${channel.name}`}
+                  className={classes.channels}
+                  key={channel._id}
+                  button
+                >
+                  <ListItemAvatar className={classes.icons}>
                     <Avatar>
-                      <WorkIcon />
+                      <ChatIcon></ChatIcon>
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText primary={channel.name} />
@@ -100,7 +115,11 @@ class Channels extends Component {
               error={err}
               helperText={errText}
             ></TextField>
-            <Button onClick={() => handleSubmit(currentTeamId, channelName)}>
+            <Button
+              onClick={() =>
+                handleSubmit(currentTeamId, currentTeamIdx, channelName)
+              }
+            >
               Add Me
             </Button>
           </Dialog>

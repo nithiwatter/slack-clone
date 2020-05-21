@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import Header from './components/Header';
-import Register from './pages/Register';
-import Login from './pages/Login';
-import ViewTeam from './pages/ViewTeam';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import MainContainer from './containers/MainContainer';
+import { BrowserRouter } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import axios from 'axios';
@@ -55,35 +53,10 @@ class App extends Component {
           }}
         >
           <Header user={user} handleLogOut={this.handleLogOut}></Header>
-          <Switch>
-            <Route
-              path="/register"
-              exact
-              render={(props) => (
-                <Register
-                  {...props}
-                  handleAuth={this.handleAuth}
-                  user={user}
-                ></Register>
-              )}
-            ></Route>
-            <Route
-              path="/login"
-              exact
-              render={(props) => (
-                <Login
-                  {...props}
-                  handleAuth={this.handleAuth}
-                  user={user}
-                ></Login>
-              )}
-            ></Route>
-            <Route
-              path="/:teamName?/:channelName?"
-              exact
-              render={(props) => <ViewTeam {...props}></ViewTeam>}
-            ></Route>
-          </Switch>
+          <MainContainer
+            user={user}
+            handleAuth={this.handleAuth}
+          ></MainContainer>
         </div>
       </BrowserRouter>
     );

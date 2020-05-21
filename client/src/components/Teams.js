@@ -15,6 +15,7 @@ const styles = (theme) => ({
   root: {
     backgroundColor: theme.palette.grey['900'],
     height: '100vh',
+    width: '100%',
     paddingTop: theme.spacing(2),
   },
   teamIcons: {
@@ -23,6 +24,9 @@ const styles = (theme) => ({
   },
   title: {
     color: 'white',
+    [theme.breakpoints.down('md')]: {
+      ...theme.typography.subtitle2,
+    },
   },
   addButton: {
     color: 'white',
@@ -47,19 +51,14 @@ class Team extends Component {
     //const {} = this.state;
     return (
       <div className={classes.root}>
-        <Grid
-          container
-          alignItems="center"
-          justify="space-evenly"
-          style={{ marginBottom: '2rem' }}
+        <Typography
+          className={classes.title}
+          align="center"
+          variant="subtitle1"
         >
-          <Typography
-            className={classes.title}
-            align="center"
-            variant="subtitle1"
-          >
-            Teams
-          </Typography>
+          Teams
+        </Typography>
+        <Grid container justify="center" style={{ margin: '1rem 0' }}>
           <IconButton
             size="small"
             className={classes.addButton}

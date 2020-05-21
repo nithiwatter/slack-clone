@@ -5,12 +5,14 @@ import Channels from '../components/Channels';
 import requests from '../utils/requests';
 import axios from 'axios';
 import findIndex from 'lodash/findIndex';
+import Hidden from '@material-ui/core/Hidden';
 
 class SidebarContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       teams: [],
+      channels: [],
       open: false,
       teamName: '',
       err: false,
@@ -87,18 +89,32 @@ class SidebarContainer extends Component {
     }
   }
 
-  async handleAddChannel(teamId, channelName) {
+  async handleAddChannel(teamId, currentTeamIdx, channelName) {
     try {
       const { data } = await axios.post(
         '/api/teams/createChannel',
         { name: channelName, teamId },
         { headers: requests.setTokenHeadersOptions() }
       );
+
+      const teamWithNewChannel = { ...this.state.teams[currentTeamIdx] };
+      teamWithNewChannel.channels = [
+        ...teamWithNewChannel.channels,
+        data.channel,
+      ];
+
+      const newTeams = [...this.state.teams];
+      newTeams[currentTeamIdx] = teamWithNewChannel;
+
+      console.log(this.state.teams);
+      console.log(newTeams);
+
       this.setState({
         openCh: false,
         errCh: false,
         errTextCh: '',
         channelName: '',
+        teams: newTeams,
       });
       // this.setState({
       //   teams: [...this.state.teams, data.team],
@@ -145,34 +161,39 @@ class SidebarContainer extends Component {
 
     return (
       <React.Fragment>
-        <Grid item xs={2} lg={1}>
-          <Teams
-            teams={teams}
-            open={open}
-            teamName={teamName}
-            err={err}
-            errText={errText}
-            handleOpen={this.handleOpen}
-            handleClose={this.handleClose}
-            handleInputChange={this.handleInputChange}
-            handleAddTeam={this.handleAddTeam}
-          ></Teams>
-        </Grid>
-        <Grid item xs={3} lg={2}>
-          <Channels
-            channels={channels}
-            currentTeam={currentTeam}
-            currentTeamId={currentTeamId}
-            open={openCh}
-            channelName={channelName}
-            err={errCh}
-            errText={errTextCh}
-            handleOpen={this.handleOpenCh}
-            handleClose={this.handleCloseCh}
-            handleInputChange={this.handleInputChangeCh}
-            handleSubmit={this.handleAddChannel}
-          ></Channels>
-        </Grid>
+        <Hidden xsDown>
+          <Grid item md={2} lg={1}>
+            <Teams
+              teams={teams}
+              open={open}
+              teamName={teamName}
+              err={err}
+              errText={errText}
+              handleOpen={this.handleOpen}
+              handleClose={this.handleClose}
+              handleInputChange={this.handleInputChange}
+              handleAddTeam={this.handleAddTeam}
+            ></Teams>
+          </Grid>
+        </Hidden>
+        <Hidden xsDown>
+          <Grid item md={3} lg={2}>
+            <Channels
+              channels={channels}
+              currentTeam={currentTeam}
+              currentTeamId={currentTeamId}
+              currentTeamIdx={currentTeamIdx}
+              open={openCh}
+              channelName={channelName}
+              err={errCh}
+              errText={errTextCh}
+              handleOpen={this.handleOpenCh}
+              handleClose={this.handleCloseCh}
+              handleInputChange={this.handleInputChangeCh}
+              handleSubmit={this.handleAddChannel}
+            ></Channels>
+          </Grid>
+        </Hidden>
       </React.Fragment>
     );
   }

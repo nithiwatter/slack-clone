@@ -16,6 +16,7 @@ exports.register = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
+    console.log(req.body);
     // Find the user associated with this username
     const { username, password } = req.body;
     if (!username) return next(new AppError('No username is provided.', 400));
