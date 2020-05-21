@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRoutes');
+const teamRouter = require('./routes/teamRoutes');
 const globalErrorController = require('./controllers/errorControllers');
 
 const app = express();
@@ -14,6 +15,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use('/api/users', userRouter);
+app.use('/api/teams', teamRouter);
 app.all('*', (req, res, next) => {
   return next(new AppError('Cannot find this route on this server.', 404));
 });

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Grid from '@material-ui/core/Grid';
-import Team from '../components/Teams';
-import Channel from '../components/Channels';
+import SidebarContainer from '../containers/SidebarContainer';
 
 class ViewTeam extends Component {
   state = {};
@@ -9,12 +8,7 @@ class ViewTeam extends Component {
     return (
       <div>
         <Grid container spacing={0}>
-          <Grid item xs={1}>
-            <Team></Team>
-          </Grid>
-          <Grid item xs={2}>
-            <Channel></Channel>
-          </Grid>
+          <SidebarContainer></SidebarContainer>
           <Grid item xs={4}>
             Messaging Area
           </Grid>
