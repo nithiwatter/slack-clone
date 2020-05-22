@@ -16,11 +16,17 @@ const styles = (theme) => ({
     width: '100%',
     paddingTop: theme.spacing(2),
   },
+  marginTop: {
+    ...theme.mixins.toolbar,
+  },
   chosenTeam: {
     backgroundColor: theme.palette.secondary.dark,
   },
   teamIcons: {
     backgroundColor: theme.palette.secondary.main,
+  },
+  inviteeIcons: {
+    backgroundColor: theme.palette.secondary.light,
   },
   title: {
     color: 'white',
@@ -73,10 +79,17 @@ class Teams extends Component {
   }
 
   render() {
-    const { teams, currentTeamIdx, classes, handleSwitchTeam } = this.props;
+    const {
+      teams,
+      currentTeamIdx,
+      classes,
+      handleSwitchTeam,
+      ownerId,
+    } = this.props;
     const { open, err, teamName } = this.state;
     return (
       <div className={classes.root}>
+        <div className={classes.marginTop}></div>
         <Typography
           className={classes.title}
           align="center"
@@ -102,7 +115,9 @@ class Teams extends Component {
                   className={
                     idx === currentTeamIdx
                       ? classes.chosenTeam
-                      : classes.teamIcons
+                      : team.ownerId === ownerId
+                      ? classes.teamIcons
+                      : classes.inviteeIcons
                   }
                 >
                   {team.name[0]}

@@ -13,5 +13,15 @@ const memberSchema = new mongoose.Schema({
   },
 });
 
+memberSchema.virtual('teams', {
+  ref: 'Team',
+  localField: 'teamId',
+  foreignField: '_id',
+  justOne: false,
+});
+
+memberSchema.set('toObject', { virtuals: true });
+memberSchema.set('toJSON', { virtuals: true });
+
 const Member = mongoose.model('Member', memberSchema);
 module.exports = Member;

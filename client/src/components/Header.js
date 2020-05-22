@@ -33,7 +33,7 @@ class Header extends Component {
     const { classes, user } = this.props;
     return (
       <div className={classes.root}>
-        <AppBar className={classes.nav} position="static">
+        <AppBar className={classes.nav}>
           <Toolbar>
             <IconButton
               edge="start"

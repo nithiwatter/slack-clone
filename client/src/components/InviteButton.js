@@ -3,31 +3,58 @@ import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import SimpleDialog from './SimpleDialog';
+import axios from 'axios';
+import requests from '../utils/requests';
 
 const styles = (theme) => {};
 
 class InviteButton extends Component {
   constructor(props) {
     super(props);
-    this.state = { open: false, err: false, inviteName: '', errText: '' };
+    this.state = { open: false, err: false, inviteeName: '', errText: '' };
     this.handleClose = this.handleClose.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleInvite = this.handleInvite.bind(this);
   }
 
   handleClose(value) {
-    this.setState({ open: value, err: false });
+    this.setState({ open: value, err: false, errText: '' });
   }
 
   handleInputChange(e) {
-    this.setState({ channelName: e.target.value });
+    this.setState({ inviteeName: e.target.value });
   }
 
-  handleInvite() {}
+  async handleInvite() {
+    try {
+      const { data } = await axios.post(
+        '/api/teams/inviteUser',
+        {
+          username: this.state.inviteeName,
+          teamId: this.props.currentTeam._id,
+        },
+        { headers: requests.setTokenHeadersOptions() }
+      );
+      this.setState({
+        open: false,
+        err: false,
+        inviteeName: '',
+        errText: '',
+      });
+
+      console.log(data.member);
+    } catch (err) {
+      console.log(err.response.data.error);
+      this.setState({
+        err: true,
+        errText: err.response.data.error,
+      });
+    }
+  }
 
   render() {
     const { classes } = this.props;
-    const { open, err, errText, inviteName } = this.state;
+    const { open, err, errText, inviteeName } = this.state;
     return (
       <React.Fragment>
         <Button
@@ -43,11 +70,11 @@ class InviteButton extends Component {
           identifier="Invitee"
           handleClose={this.handleClose}
           handleInputChange={this.handleInputChange}
-          handleSubmit={this.handleAddChannel}
+          handleSubmit={this.handleInvite}
           open={open}
           err={err}
           errText={errText}
-          value={inviteName}
+          value={inviteeName}
         ></SimpleDialog>
       </React.Fragment>
     );

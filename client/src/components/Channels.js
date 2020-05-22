@@ -21,9 +21,8 @@ const styles = (theme) => ({
     height: '100vh',
     paddingTop: theme.spacing(2),
   },
-  teamIcons: {
-    marginTop: theme.spacing(2),
-    backgroundColor: theme.palette.secondary.main,
+  marginTop: {
+    ...theme.mixins.toolbar,
   },
   title: {
     color: 'white',
@@ -95,18 +94,20 @@ class Channels extends Component {
       currentTeam,
       handleSwitchChannel,
       currentChannelIdx,
+      ownerId,
     } = this.props;
 
     const { open, err, channelName } = this.state;
     return (
       <div className={classes.root}>
+        <div className={classes.marginTop}></div>
         <Grid container alignItems="center">
           <Grid item xs={6}>
             <Typography className={classes.title} align="left" variant="h5">
               {currentTeam ? currentTeam.name : ''}
             </Typography>
           </Grid>
-          {currentTeam ? (
+          {currentTeam && currentTeam.ownerId === ownerId ? (
             <Grid
               container
               xs={6}
@@ -115,7 +116,7 @@ class Channels extends Component {
               justify="flex-end"
               className={classes.buttons}
             >
-              <InviteButton></InviteButton>
+              <InviteButton currentTeam={currentTeam}></InviteButton>
               <IconButton
                 className={classes.addButton}
                 size="small"

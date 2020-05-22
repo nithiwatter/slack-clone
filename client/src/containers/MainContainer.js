@@ -75,12 +75,14 @@ class MainContainer extends Component {
   }
 
   render() {
+    const { user } = this.props;
     const { teams, currentTeamIdx, channels, currentChannelIdx } = this.state;
     return (
       <Grid container spacing={0}>
         <Grid item lg={1}>
           <Teams
             teams={teams}
+            ownerId={user._id}
             currentTeamIdx={currentTeamIdx}
             handleCache={this.handleCacheTeam}
             handleSwitchTeam={this.handleSwitchTeam}
@@ -90,6 +92,7 @@ class MainContainer extends Component {
           <Channels
             channels={channels}
             currentTeam={teams[currentTeamIdx]}
+            ownerId={user._id}
             currentTeamIdx={currentTeamIdx}
             currentChannelIdx={currentChannelIdx}
             handleCache={this.handleCacheChannel}

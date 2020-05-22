@@ -1,17 +1,32 @@
 const Team = require('../models/teamModel');
 const Channel = require('../models/channelModel');
+const Member = require('../models/memberModel');
 const AppError = require('../utils/appError');
 
 exports.getTeams = async (req, res, next) => {
   try {
     // from passing through the protect middleware
     const ownerId = req.user._id;
-    const teams = await Team.find({ ownerId }).populate('channels');
-    console.log(teams);
+    const teamsPromise = Team.find({ ownerId }).populate('channels');
+
+    const inviteeTeamsPromise = Member.find({ userId: req.user._id }).populate({
+      path: 'teams',
+      populate: { path: 'channels' },
+    });
+
+    const [teams, inviteeTeamsUnformatted] = await Promise.all([
+      teamsPromise,
+      inviteeTeamsPromise,
+    ]);
+
+    const inviteeTeams = [];
+    for (let i = 0; i < inviteeTeamsUnformatted.length; i++) {
+      inviteeTeams.push(inviteeTeamsUnformatted[i].teams[0]);
+    }
 
     res.status(200).send({
       status: 'success',
-      teams,
+      teams: [...teams, ...inviteeTeams],
     });
   } catch (err) {
     next(err);
