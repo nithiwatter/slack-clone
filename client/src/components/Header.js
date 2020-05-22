@@ -13,6 +13,9 @@ const styles = (theme) => ({
   root: {
     flexGrow: 1,
   },
+  nav: {
+    backgroundColor: theme.palette.grey['A400'],
+  },
   menuButton: {
     marginRight: theme.spacing(2),
   },
@@ -30,7 +33,7 @@ class Header extends Component {
     const { classes, user } = this.props;
     return (
       <div className={classes.root}>
-        <AppBar position="static">
+        <AppBar className={classes.nav} position="static">
           <Toolbar>
             <IconButton
               edge="start"

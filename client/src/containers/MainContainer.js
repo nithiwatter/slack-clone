@@ -8,10 +8,16 @@ import Grid from '@material-ui/core/Grid';
 class MainContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = { teams: [], currentTeamIdx: 0, channels: [] };
+    this.state = {
+      teams: [],
+      currentTeamIdx: 0,
+      channels: [],
+      currentChannelIdx: 0,
+    };
     this.handleCacheTeam = this.handleCacheTeam.bind(this);
     this.handleCacheChannel = this.handleCacheChannel.bind(this);
     this.handleSwitchTeam = this.handleSwitchTeam.bind(this);
+    this.handleSwitchChannel = this.handleSwitchChannel.bind(this);
   }
 
   async componentDidMount() {
@@ -58,11 +64,18 @@ class MainContainer extends Component {
     this.setState({
       currentTeamIdx: selectedTeam,
       channels: this.state.teams[selectedTeam].channels,
+      currentChannelIdx: 0,
+    });
+  }
+
+  handleSwitchChannel(selectedChannel) {
+    this.setState({
+      currentChannelIdx: selectedChannel,
     });
   }
 
   render() {
-    const { teams, currentTeamIdx, channels } = this.state;
+    const { teams, currentTeamIdx, channels, currentChannelIdx } = this.state;
     return (
       <Grid container spacing={0}>
         <Grid item lg={1}>
@@ -78,11 +91,15 @@ class MainContainer extends Component {
             channels={channels}
             currentTeam={teams[currentTeamIdx]}
             currentTeamIdx={currentTeamIdx}
+            currentChannelIdx={currentChannelIdx}
             handleCache={this.handleCacheChannel}
+            handleSwitchChannel={this.handleSwitchChannel}
           ></Channels>
         </Grid>
         <Grid item lg={8}>
-          <div>Messages</div>
+          <div>
+            {channels.length !== 0 ? channels[currentChannelIdx].name : null}
+          </div>
         </Grid>
       </Grid>
     );

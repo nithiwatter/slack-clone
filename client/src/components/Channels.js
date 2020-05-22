@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import { Link } from 'react-router-dom';
+import InviteButton from './InviteButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -36,10 +36,11 @@ const styles = (theme) => ({
     backgroundColor: theme.palette.grey['700'],
     color: 'white',
   },
+  buttons: {},
   addButton: {
-    marginLeft: 'auto',
-    marginRight: theme.spacing(2),
+    margin: theme.spacing(0, 2),
     color: 'white',
+    height: '2rem',
     backgroundColor: theme.palette.grey['900'],
   },
   icons: {
@@ -88,31 +89,54 @@ class Channels extends Component {
   }
 
   render() {
-    const { classes, channels, currentTeam } = this.props;
+    const {
+      classes,
+      channels,
+      currentTeam,
+      handleSwitchChannel,
+      currentChannelIdx,
+    } = this.props;
 
     const { open, err, channelName } = this.state;
     return (
       <div className={classes.root}>
         <Grid container alignItems="center">
-          <Typography className={classes.title} align="center" variant="h5">
-            {currentTeam ? currentTeam.name : ''}
-          </Typography>
+          <Grid item xs={6}>
+            <Typography className={classes.title} align="left" variant="h5">
+              {currentTeam ? currentTeam.name : ''}
+            </Typography>
+          </Grid>
           {currentTeam ? (
-            <IconButton
-              size="small"
-              className={classes.addButton}
-              onClick={() => this.handleClose(true)}
+            <Grid
+              container
+              xs={6}
+              item
+              alignItems="center"
+              justify="flex-end"
+              className={classes.buttons}
             >
-              <AddIcon></AddIcon>
-            </IconButton>
+              <InviteButton></InviteButton>
+              <IconButton
+                className={classes.addButton}
+                size="small"
+                onClick={() => this.handleClose(true)}
+              >
+                <AddIcon></AddIcon>
+              </IconButton>
+            </Grid>
           ) : null}
         </Grid>
-
-        <Grid container spacing={0} justify="center">
+        <Grid item lg={12} container spacing={0} justify="center">
           <Grid item xs={12}>
-            <List className={classes.root}>
-              {channels.map((channel) => (
-                <ListItem className={classes.channels} key={channel._id} button>
+            <List style={{ marginTop: '0.5rem' }}>
+              {channels.map((channel, idx) => (
+                <ListItem
+                  className={classes.channels}
+                  key={channel._id}
+                  button
+                  onClick={() => handleSwitchChannel(idx)}
+                  disabled={idx === currentChannelIdx ? true : false}
+                >
                   <ListItemAvatar className={classes.icons}>
                     <Avatar>
                       <ChatIcon></ChatIcon>
