@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Teams from '../components/Teams';
 import Channels from '../components/Channels';
+import Messages from '../components/Messages';
 import axios from 'axios';
 import requests from '../utils/requests';
 import Grid from '@material-ui/core/Grid';
@@ -100,9 +101,14 @@ class MainContainer extends Component {
           ></Channels>
         </Grid>
         <Grid item lg={8}>
-          <div>
-            {channels.length !== 0 ? channels[currentChannelIdx].name : null}
-          </div>
+          <Messages
+            channelId={
+              channels.length !== 0 ? channels[currentChannelIdx]._id : null
+            }
+            channelName={
+              channels.length !== 0 ? channels[currentChannelIdx].name : null
+            }
+          ></Messages>
         </Grid>
       </Grid>
     );

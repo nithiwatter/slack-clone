@@ -3,6 +3,7 @@ const teamController = require('../controllers/teamControllers');
 const channelController = require('../controllers/channelControllers');
 const userController = require('../controllers/userControllers');
 const memberController = require('../controllers/memberControllers');
+const messageController = require('../controllers/messageControllers');
 
 const teamRouter = express.Router();
 
@@ -17,6 +18,11 @@ teamRouter.post(
   '/inviteUser',
   userController.protect,
   memberController.inviteMember
+);
+teamRouter.post(
+  '/createMessage',
+  userController.protect,
+  messageController.createMessage
 );
 
 module.exports = teamRouter;
