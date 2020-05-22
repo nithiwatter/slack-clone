@@ -57,7 +57,7 @@ class Messages extends Component {
   }
 
   render() {
-    const { classes, channelName } = this.props;
+    const { classes, channelName, messages } = this.props;
     const { input } = this.state;
     return (
       <div className={classes.root}>
@@ -78,6 +78,11 @@ class Messages extends Component {
           value={input}
           onKeyPress={this.handleSubmit}
         />
+        <div>
+          {messages.map((message, idx) => (
+            <div key={message._id}>{message.text}</div>
+          ))}
+        </div>
       </div>
     );
   }

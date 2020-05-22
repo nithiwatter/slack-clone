@@ -14,3 +14,14 @@ exports.createMessage = async (req, res, next) => {
     message,
   });
 };
+
+exports.getMessages = async (req, res, next) => {
+  const messages = await Message.find({
+    channelId: req.headers['channel'].split(' ')[1],
+  });
+
+  res.status(200).json({
+    status: 'success',
+    messages,
+  });
+};

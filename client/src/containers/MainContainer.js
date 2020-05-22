@@ -14,6 +14,7 @@ class MainContainer extends Component {
       currentTeamIdx: 0,
       channels: [],
       currentChannelIdx: 0,
+      messages: [],
     };
     this.handleCacheTeam = this.handleCacheTeam.bind(this);
     this.handleCacheChannel = this.handleCacheChannel.bind(this);
@@ -30,9 +31,18 @@ class MainContainer extends Component {
         const teams = data.teams;
         console.log('Fetching initial data for this user.');
         if (teams.length !== 0) {
+          const { data: dataM } = await axios.get('/api/teams/getMessages', {
+            headers: {
+              ...requests.setTokenHeadersOptions(),
+              Channel:
+                'Channel ' + teams[this.state.currentTeamIdx].channels[0]._id,
+            },
+          });
+          console.log(dataM);
           this.setState({
             teams,
             channels: teams[this.state.currentTeamIdx].channels,
+            messages: dataM.messages,
           });
         }
       }
@@ -77,7 +87,13 @@ class MainContainer extends Component {
 
   render() {
     const { user } = this.props;
-    const { teams, currentTeamIdx, channels, currentChannelIdx } = this.state;
+    const {
+      teams,
+      currentTeamIdx,
+      channels,
+      currentChannelIdx,
+      messages,
+    } = this.state;
     return (
       <Grid container spacing={0}>
         <Grid item lg={1}>
@@ -108,6 +124,7 @@ class MainContainer extends Component {
             channelName={
               channels.length !== 0 ? channels[currentChannelIdx].name : null
             }
+            messages={messages}
           ></Messages>
         </Grid>
       </Grid>

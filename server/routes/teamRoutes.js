@@ -25,4 +25,10 @@ teamRouter.post(
   messageController.createMessage
 );
 
+teamRouter.get(
+  '/getMessages',
+  userController.protect,
+  messageController.getMessages
+);
+
 module.exports = teamRouter;
