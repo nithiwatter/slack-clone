@@ -9,12 +9,11 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import ChatIcon from '@material-ui/icons/Chat';
 import Typography from '@material-ui/core/Typography';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import SimpleDialog from './SimpleDialog';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
+import axios from 'axios';
+import requests from '../utils/requests';
 
 const styles = (theme) => ({
   root: {
@@ -51,32 +50,57 @@ const styles = (theme) => ({
 });
 
 class Channels extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { open: false, err: false, channelName: '' };
+    this.handleClose = this.handleClose.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleAddChannel = this.handleAddChannel.bind(this);
+  }
+
+  handleClose(value) {
+    this.setState({ open: value, err: false });
+  }
+
+  handleInputChange(e) {
+    this.setState({ channelName: e.target.value });
+  }
+
+  async handleAddChannel() {
+    try {
+      const { data } = await axios.post(
+        '/api/teams/createChannel',
+        { name: this.state.channelName, teamId: this.props.currentTeam._id },
+        { headers: requests.setTokenHeadersOptions() }
+      );
+      this.setState({
+        open: false,
+        err: false,
+        channelName: '',
+      });
+
+      this.props.handleCache(data.channel, this.props.currentTeamIdx);
+    } catch (err) {
+      this.setState({
+        err: true,
+      });
+    }
+  }
+
   render() {
-    const {
-      classes,
-      channels,
-      currentTeam,
-      open,
-      channelName,
-      err,
-      errText,
-      handleOpen,
-      handleClose,
-      handleInputChange,
-      currentTeamId,
-      currentTeamIdx,
-      handleSubmit,
-    } = this.props;
+    const { classes, channels, currentTeam } = this.props;
+
+    const { open, err, channelName } = this.state;
     return (
       <div className={classes.root}>
         <Grid container alignItems="center">
           <Typography className={classes.title} align="center" variant="h5">
-            {currentTeam}
+            {currentTeam ? currentTeam.name : ''}
           </Typography>
           <IconButton
             size="small"
             className={classes.addButton}
-            onClick={handleOpen}
+            onClick={() => this.handleClose(true)}
           >
             <AddIcon></AddIcon>
           </IconButton>
@@ -86,13 +110,7 @@ class Channels extends Component {
           <Grid item xs={12}>
             <List className={classes.root}>
               {channels.map((channel) => (
-                <ListItem
-                  component={Link}
-                  to={`/${currentTeam}/${channel.name}`}
-                  className={classes.channels}
-                  key={channel._id}
-                  button
-                >
+                <ListItem className={classes.channels} key={channel._id} button>
                   <ListItemAvatar className={classes.icons}>
                     <Avatar>
                       <ChatIcon></ChatIcon>
@@ -103,27 +121,17 @@ class Channels extends Component {
               ))}
             </List>
           </Grid>
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Type Your Channel Name</DialogTitle>
-            <TextField
-              style={{ margin: '1rem 1rem' }}
-              id="standard-basic"
-              label="Channel Name"
-              autoComplete="off"
-              onChange={handleInputChange}
-              value={channelName}
-              error={err}
-              helperText={errText}
-            ></TextField>
-            <Button
-              onClick={() =>
-                handleSubmit(currentTeamId, currentTeamIdx, channelName)
-              }
-            >
-              Add Me
-            </Button>
-          </Dialog>
         </Grid>
+
+        <SimpleDialog
+          handleClose={this.handleClose}
+          handleInputChange={this.handleInputChange}
+          handleSubmit={this.handleAddChannel}
+          open={open}
+          err={err}
+          errText={!err ? '' : 'A channel with this name already exists.'}
+          value={channelName}
+        ></SimpleDialog>
       </div>
     );
   }

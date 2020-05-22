@@ -1,39 +1,86 @@
 import React, { Component } from 'react';
-import Register from '../pages/Register';
-import Login from '../pages/Login';
-import ViewTeam from '../pages/ViewTeam';
-import { Route, Switch } from 'react-router-dom';
+import Teams from '../components/Teams';
+import Channels from '../components/Channels';
+import axios from 'axios';
+import requests from '../utils/requests';
+import Grid from '@material-ui/core/Grid';
 
 class MainContainer extends Component {
-  state = {};
+  constructor(props) {
+    super(props);
+    this.state = { teams: [], currentTeamIdx: 0, channels: [] };
+    this.handleCacheTeam = this.handleCacheTeam.bind(this);
+    this.handleCacheChannel = this.handleCacheChannel.bind(this);
+    this.handleSwitchTeam = this.handleSwitchTeam.bind(this);
+  }
+
+  async componentDidMount() {
+    try {
+      if (this.props.user) {
+        const { data } = await axios.get('/api/teams', {
+          headers: requests.setTokenHeadersOptions(),
+        });
+        const teams = data.teams;
+        console.log('Fetching initial data for this user.');
+        if (teams.length !== 0) {
+          this.setState({
+            teams,
+            channels: teams[this.state.currentTeamIdx].channels,
+          });
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  handleCacheTeam(newTeam) {
+    this.setState({ teams: [...this.state.teams, newTeam] });
+  }
+
+  handleCacheChannel(newChannel, currentTeamIdx) {
+    const teamWithNewChannel = { ...this.state.teams[currentTeamIdx] };
+    teamWithNewChannel.channels = [...teamWithNewChannel.channels, newChannel];
+    const newTeams = [...this.state.teams];
+    newTeams[currentTeamIdx] = teamWithNewChannel;
+
+    this.setState({
+      teams: newTeams,
+      channels: newTeams[currentTeamIdx].channels,
+    });
+  }
+
+  handleSwitchTeam(selectedTeam) {
+    this.setState({
+      currentTeamIdx: selectedTeam,
+      channels: this.state.teams[selectedTeam].channels,
+    });
+  }
+
   render() {
-    const { user, handleAuth } = this.props;
+    const { teams, currentTeamIdx, channels } = this.state;
     return (
-      <Switch>
-        <Route
-          path="/register"
-          exact
-          render={(props) => (
-            <Register
-              {...props}
-              handleAuth={this.handleAuth}
-              user={user}
-            ></Register>
-          )}
-        ></Route>
-        <Route
-          path="/login"
-          exact
-          render={(props) => (
-            <Login {...props} handleAuth={this.handleAuth} user={user}></Login>
-          )}
-        ></Route>
-        <Route
-          path="/:teamName?/:channelName?"
-          exact
-          render={(props) => <ViewTeam {...props} user={user}></ViewTeam>}
-        ></Route>
-      </Switch>
+      <Grid container spacing={0}>
+        <Grid item lg={1}>
+          <Teams
+            teams={teams}
+            currentTeamIdx={currentTeamIdx}
+            handleCache={this.handleCacheTeam}
+            handleSwitchTeam={this.handleSwitchTeam}
+          ></Teams>
+        </Grid>
+        <Grid item lg={3}>
+          <Channels
+            channels={channels}
+            currentTeam={teams[currentTeamIdx]}
+            currentTeamIdx={currentTeamIdx}
+            handleCache={this.handleCacheChannel}
+          ></Channels>
+        </Grid>
+        <Grid item lg={8}>
+          <div>Messages</div>
+        </Grid>
+      </Grid>
     );
   }
 }

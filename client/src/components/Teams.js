@@ -5,11 +5,9 @@ import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import { Link } from 'react-router-dom';
+import SimpleDialog from './SimpleDialog';
+import axios from 'axios';
+import requests from '../utils/requests';
 
 const styles = (theme) => ({
   root: {
@@ -18,9 +16,11 @@ const styles = (theme) => ({
     width: '100%',
     paddingTop: theme.spacing(2),
   },
+  chosenTeam: {
+    backgroundColor: theme.palette.secondary.dark,
+  },
   teamIcons: {
     backgroundColor: theme.palette.secondary.main,
-    border: '1px solid red',
   },
   title: {
     color: 'white',
@@ -34,21 +34,47 @@ const styles = (theme) => ({
   },
 });
 
-class Team extends Component {
+class Teams extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { open: false, err: false, teamName: '' };
+    this.handleClose = this.handleClose.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleAddTeam = this.handleAddTeam.bind(this);
+  }
+
+  handleClose(value) {
+    this.setState({ open: value, err: false });
+  }
+
+  handleInputChange(e) {
+    this.setState({ teamName: e.target.value });
+  }
+
+  async handleAddTeam() {
+    try {
+      const { data } = await axios.post(
+        '/api/teams',
+        { name: this.state.teamName },
+        { headers: requests.setTokenHeadersOptions() }
+      );
+      this.setState({
+        open: false,
+        err: false,
+        teamName: '',
+      });
+
+      this.props.handleCache(data.team);
+    } catch (err) {
+      this.setState({
+        err: true,
+      });
+    }
+  }
+
   render() {
-    const {
-      classes,
-      teams,
-      open,
-      teamName,
-      err,
-      errText,
-      handleOpen,
-      handleClose,
-      handleInputChange,
-      handleAddTeam,
-    } = this.props;
-    //const {} = this.state;
+    const { teams, currentTeamIdx, classes, handleSwitchTeam } = this.props;
+    const { open, err, teamName } = this.state;
     return (
       <div className={classes.root}>
         <Typography
@@ -62,62 +88,42 @@ class Team extends Component {
           <IconButton
             size="small"
             className={classes.addButton}
-            onClick={handleOpen}
+            onClick={() => this.handleClose(true)}
           >
             <AddIcon></AddIcon>
           </IconButton>
         </Grid>
 
-        <div
-          style={{
-            height: '70vh',
-            overflow: 'auto',
-          }}
-        >
-          <div
-            style={{
-              minHeight: '100%',
-              width: '100%',
-            }}
-          >
-            {teams.map((team, index) => (
-              <Grid
-                key={team._id}
-                container
-                style={{ marginBottom: '1rem' }}
-                justify="center"
-              >
-                <Link style={{ textDecoration: 'none' }} to={`/${team.name}`}>
-                  <Avatar className={classes.teamIcons}>{team.name[0]}</Avatar>
-                </Link>
-              </Grid>
-            ))}
-          </div>
-        </div>
+        <Grid container spacing={0}>
+          {teams.map((team, idx) => (
+            <Grid key={team._id} item xs={12} container justify="center">
+              <IconButton onClick={() => handleSwitchTeam(idx)}>
+                <Avatar
+                  className={
+                    idx === currentTeamIdx
+                      ? classes.chosenTeam
+                      : classes.teamIcons
+                  }
+                >
+                  {team.name[0]}
+                </Avatar>
+              </IconButton>
+            </Grid>
+          ))}
+        </Grid>
 
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Type Your Team Name</DialogTitle>
-          <TextField
-            style={{ margin: '1rem 1rem' }}
-            id="standard-basic"
-            label="Team Name"
-            onChange={handleInputChange}
-            value={teamName}
-            error={err}
-            helperText={errText}
-            autoComplete="off"
-          ></TextField>
-          <Button
-            onClick={() => {
-              handleAddTeam(teamName);
-            }}
-          >
-            Add Me
-          </Button>
-        </Dialog>
+        <SimpleDialog
+          handleClose={this.handleClose}
+          handleInputChange={this.handleInputChange}
+          handleSubmit={this.handleAddTeam}
+          open={open}
+          err={err}
+          errText={!err ? '' : 'A team with this name already exists.'}
+          value={teamName}
+        ></SimpleDialog>
       </div>
     );
   }
 }
 
-export default withStyles(styles)(Team);
+export default withStyles(styles)(Teams);

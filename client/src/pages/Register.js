@@ -56,7 +56,7 @@ class Register extends Component {
   async handleSubmit(e) {
     try {
       e.preventDefault();
-      console.log(this.state);
+
       let {
         name,
         username,

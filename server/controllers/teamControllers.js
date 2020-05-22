@@ -1,4 +1,5 @@
 const Team = require('../models/teamModel');
+const Channel = require('../models/channelModel');
 const AppError = require('../utils/appError');
 
 exports.getTeams = async (req, res, next) => {
@@ -25,9 +26,10 @@ exports.createTeam = async (req, res, next) => {
       return next(new AppError('A team with this name already exists.', 400));
     }
     let team = new Team({ name, ownerId });
-    await team.save();
+    let channel = new Channel({ name: 'general', teamId: team._id });
+    await Promise.all([team.save(), channel.save()]);
     team = team.toObject();
-    team.channels = [];
+    team.channels = [channel];
     res.status(201).json({
       status: 'success',
       team,
