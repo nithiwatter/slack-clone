@@ -113,6 +113,7 @@ class Teams extends Component {
         </Grid>
 
         <SimpleDialog
+          identifier="Team"
           handleClose={this.handleClose}
           handleInputChange={this.handleInputChange}
           handleSubmit={this.handleAddTeam}

@@ -97,13 +97,15 @@ class Channels extends Component {
           <Typography className={classes.title} align="center" variant="h5">
             {currentTeam ? currentTeam.name : ''}
           </Typography>
-          <IconButton
-            size="small"
-            className={classes.addButton}
-            onClick={() => this.handleClose(true)}
-          >
-            <AddIcon></AddIcon>
-          </IconButton>
+          {currentTeam ? (
+            <IconButton
+              size="small"
+              className={classes.addButton}
+              onClick={() => this.handleClose(true)}
+            >
+              <AddIcon></AddIcon>
+            </IconButton>
+          ) : null}
         </Grid>
 
         <Grid container spacing={0} justify="center">
@@ -124,6 +126,7 @@ class Channels extends Component {
         </Grid>
 
         <SimpleDialog
+          identifier="Channel"
           handleClose={this.handleClose}
           handleInputChange={this.handleInputChange}
           handleSubmit={this.handleAddChannel}

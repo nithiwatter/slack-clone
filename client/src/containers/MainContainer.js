@@ -35,7 +35,11 @@ class MainContainer extends Component {
   }
 
   handleCacheTeam(newTeam) {
-    this.setState({ teams: [...this.state.teams, newTeam] });
+    this.setState({
+      teams: [...this.state.teams, newTeam],
+      currentTeamIdx: this.state.teams.length,
+      channels: newTeam.channels,
+    });
   }
 
   handleCacheChannel(newChannel, currentTeamIdx) {

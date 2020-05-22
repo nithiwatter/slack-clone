@@ -18,11 +18,11 @@ class SimpleDialog extends Component {
     } = this.props;
     return (
       <Dialog open={open} onClose={() => handleClose(false)}>
-        <DialogTitle>Type Your Team Name</DialogTitle>
+        <DialogTitle>Type Your {this.props.identifier} Name</DialogTitle>
         <TextField
           style={{ margin: '1rem 1rem' }}
           id="standard-basic"
-          label="Team Name"
+          label={`${this.props.identifier} Name`}
           onChange={handleInputChange}
           value={value}
           error={err}
