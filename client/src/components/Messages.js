@@ -47,7 +47,8 @@ class Messages extends Component {
           { text: this.state.input, channelId: this.props.channelId },
           { headers: requests.setTokenHeadersOptions() }
         );
-        console.log(data.message);
+        console.log(this.props.serverId);
+        this.props.socket.emit('message', [data.message, this.props.serverId]);
         this.setState({ input: '' });
       } else {
       }

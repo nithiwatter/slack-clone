@@ -7,7 +7,9 @@ exports.getTeams = async (req, res, next) => {
   try {
     // from passing through the protect middleware
     const ownerId = req.user._id;
-    const teamsPromise = Team.find({ ownerId }).populate('channels');
+    const teamsPromise = Team.find({ ownerId })
+      .populate('channels')
+      .populate('channelIds');
 
     const inviteeTeamsPromise = Member.find({ userId: req.user._id }).populate({
       path: 'teams',
@@ -18,7 +20,8 @@ exports.getTeams = async (req, res, next) => {
       teamsPromise,
       inviteeTeamsPromise,
     ]);
-
+    console.log(teams);
+    console.log(inviteeTeamsUnformatted);
     const inviteeTeams = [];
     for (let i = 0; i < inviteeTeamsUnformatted.length; i++) {
       inviteeTeams.push(inviteeTeamsUnformatted[i].teams[0]);

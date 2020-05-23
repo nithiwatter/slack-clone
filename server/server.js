@@ -1,7 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const app = require('./app');
-
+const http = require('http');
+const socketio = require('socket.io');
 const port = process.env.PORT || 3000;
 
 mongoose
@@ -13,4 +14,26 @@ mongoose
   })
   .then(() => console.log('DB connection successful!'));
 
-app.listen(port, () => console.log(`App is listening at ${port}...`));
+const server = http.createServer(app);
+const io = socketio(server);
+server.listen(port, () => console.log(`App is listening at ${port}...`));
+
+io.on('connection', (socket) => {
+  console.log('New connection...');
+
+  // Subscribe to all servers - fired after all servers + channels have been loaded by the client
+  socket.on('subscribe', (serverId) => {
+    console.log(serverId);
+    socket.join(serverId);
+  });
+
+  // A simple chat message sent by client (will include serverId on the object)
+  socket.on('message', (message) => {
+    console.log(message);
+    io.in(message[1]).emit('newMessage', message[0]);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Bye..');
+  });
+});

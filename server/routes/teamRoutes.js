@@ -31,4 +31,6 @@ teamRouter.get(
   messageController.getMessages
 );
 
+teamRouter.post('/getAllMessages', messageController.getAllMessages);
+
 module.exports = teamRouter;

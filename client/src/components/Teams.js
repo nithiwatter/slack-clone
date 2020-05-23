@@ -69,7 +69,7 @@ class Teams extends Component {
         err: false,
         teamName: '',
       });
-
+      console.log('Created new team');
       this.props.handleCache(data.team);
     } catch (err) {
       this.setState({
