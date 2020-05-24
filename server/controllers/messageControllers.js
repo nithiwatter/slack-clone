@@ -8,6 +8,10 @@ exports.getAllMessages = async (req, res, next) => {
 
   for (let i = 0; i < req.body.channels.length; i++) {
     const promise = Message.find({ channelId: req.body.channels[i] })
+      .populate({
+        path: 'users',
+        select: '-_id -password -truePassword -__v',
+      })
       .limit(20)
       .then((docs) => {
         result[req.body.channels[i]] = docs;
@@ -24,8 +28,11 @@ exports.createMessage = async (req, res, next) => {
   const channelId = req.body.channelId;
   const text = req.body.text;
 
-  const message = new Message({ userId, channelId, text });
+  let message = new Message({ userId, channelId, text });
   await message.save();
+
+  message = message.toObject();
+  message.users = [{ name: req.user.name, username: req.user.username }];
 
   res.status(200).json({
     status: 'success',

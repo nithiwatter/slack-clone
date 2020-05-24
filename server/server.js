@@ -23,13 +23,11 @@ io.on('connection', (socket) => {
 
   // Subscribe to all servers - fired after all servers + channels have been loaded by the client
   socket.on('subscribe', (serverId) => {
-    console.log(serverId);
     socket.join(serverId);
   });
 
   // A simple chat message sent by client (will include serverId on the object)
   socket.on('message', (message) => {
-    console.log(message);
     io.in(message[1]).emit('newMessage', message[0]);
   });
 

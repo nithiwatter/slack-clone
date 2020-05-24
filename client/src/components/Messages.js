@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
+import { Comment } from 'semantic-ui-react';
+import Avatar from '@material-ui/core/Avatar';
 import axios from 'axios';
 import requests from '../utils/requests';
 import Typography from '@material-ui/core/Typography';
@@ -8,22 +9,45 @@ import TextField from '@material-ui/core/TextField';
 
 const styles = (theme) => ({
   root: {
-    height: '100vh',
-    paddingTop: theme.spacing(2),
     backgroundColor: 'white',
     position: 'relative',
   },
   marginTop: {
     ...theme.mixins.toolbar,
   },
+  grid: {
+    display: 'grid',
+    height: '100vh',
+    gridTemplateColums: '1',
+    gridTemplateRows: 'auto 1fr auto',
+  },
+  header: {
+    marginTop: theme.spacing(1),
+    gridRow: '1',
+    gridColumn: '1',
+  },
+  messageContainer: {
+    display: 'flex',
+    flexDirection: 'column-reverse',
+    verticalAlign: 'top',
+    height: '100%',
+    overflowY: 'auto',
+    gridColumn: '1',
+    gridRow: '2',
+  },
   input: {
-    position: 'absolute',
-    bottom: '3%',
-    left: '2%',
+    gridRow: '3',
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(1),
+    marginLeft: '2%',
     width: '96%',
   },
-  inputField: {
-    backgroundColor: 'white',
+  inputField: {},
+  icon: { backgroundColor: theme.palette.primary.main },
+  comment: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: theme.spacing(3),
   },
 });
 
@@ -47,7 +71,6 @@ class Messages extends Component {
           { text: this.state.input, channelId: this.props.channelId },
           { headers: requests.setTokenHeadersOptions() }
         );
-        console.log(this.props.serverId);
         this.props.socket.emit('message', [data.message, this.props.serverId]);
         this.setState({ input: '' });
       } else {
@@ -62,27 +85,48 @@ class Messages extends Component {
     const { input } = this.state;
     return (
       <div className={classes.root}>
-        <div className={classes.marginTop}></div>
-        <Typography variant="h3" align="center">
-          #{channelName}
-        </Typography>
-        <TextField
-          className={classes.input}
-          InputProps={{
-            className: classes.inputField,
-          }}
-          id="filled-textarea"
-          variant="filled"
-          label="Input"
-          placeholder="Type Your Message"
-          onChange={this.handleInputChange}
-          value={input}
-          onKeyPress={this.handleSubmit}
-        />
-        <div>
-          {messages.map((message, idx) => (
-            <div key={message._id}>{message.text}</div>
-          ))}
+        <div className={classes.grid}>
+          <div className={classes.header}>
+            <div className={classes.marginTop}></div>
+            <Typography variant="h5" align="center">
+              #{channelName}
+            </Typography>
+          </div>
+
+          <TextField
+            className={classes.input}
+            InputProps={{
+              className: classes.inputField,
+            }}
+            onChange={this.handleInputChange}
+            value={input}
+            onKeyPress={this.handleSubmit}
+          />
+          <div className={classes.messageContainer}>
+            <Comment.Group>
+              {messages.map((message, idx) => (
+                <div key={message._id} className={classes.comment}>
+                  <Avatar
+                    style={{ marginRight: '1rem' }}
+                    className={classes.icon}
+                  >
+                    {message.users[0].username[0]}
+                  </Avatar>
+                  <Comment>
+                    <Comment.Content>
+                      <Comment.Author as="a">
+                        {message.users[0].username}
+                      </Comment.Author>
+                      <Comment.Metadata>
+                        <div>{message.createdAt}</div>
+                      </Comment.Metadata>
+                      <Comment.Text>{message.text}</Comment.Text>
+                    </Comment.Content>
+                  </Comment>
+                </div>
+              ))}
+            </Comment.Group>
+          </div>
         </div>
       </div>
     );

@@ -51,6 +51,7 @@ class Header extends Component {
                   className={classes.button}
                   color="inherit"
                   component={Link}
+                  style={{ textDecoration: 'none' }}
                   to="/register"
                 >
                   Register

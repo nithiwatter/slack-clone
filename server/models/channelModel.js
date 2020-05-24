@@ -15,6 +15,7 @@ const channelSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+  readReceipt: {},
 });
 
 const Channel = mongoose.model('Channel', channelSchema);

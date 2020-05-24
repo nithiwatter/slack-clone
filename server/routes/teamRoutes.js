@@ -15,6 +15,11 @@ teamRouter.post(
   channelController.createChannel
 );
 teamRouter.post(
+  '/markAsRead',
+  userController.protect,
+  channelController.markAsRead
+);
+teamRouter.post(
   '/inviteUser',
   userController.protect,
   memberController.inviteMember

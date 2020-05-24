@@ -19,6 +19,7 @@ class MainContainer extends Component {
       channels: [],
       currentChannelIdx: 0,
       messages: [],
+      readTracker: {},
     };
     console.log('Created');
     this.socket = io('http://localhost:8000');
@@ -39,13 +40,24 @@ class MainContainer extends Component {
         });
         const teams = data.teams;
         console.log('Fetching initial data for this user.');
-
+        console.log(teams);
         if (teams.length !== 0) {
           let dataToSent = [];
           for (let i = 0; i < teams.length; i++) {
             dataToSent.push(...teams[i].channels);
           }
+          const channels = dataToSent;
           dataToSent = dataToSent.map((channel) => channel._id);
+
+          // whenever the component mounts, marks the general channel of the first team as read
+          const { data: dataCh } = await axios.post(
+            '/api/teams/markAsRead',
+            {
+              channelId: teams[0].channels[0]._id,
+              teamId: teams[0]._id,
+            },
+            { headers: requests.setTokenHeadersOptions() }
+          );
 
           const { data: dataM } = await axios.post(
             '/api/teams/getAllMessages',
@@ -54,19 +66,50 @@ class MainContainer extends Component {
           );
 
           Object.assign(this.messagesData, dataM.data);
+          console.log(dataM.data);
+
+          // tracking read receipt
+          const readTracker = {};
+          console.log(channels);
+          for (let i = 0; i < channels.length; i++) {
+            // just invited to the team, so no read receipt yet
+            const currentChannel = channels[i];
+            readTracker[currentChannel._id] = 0;
+            if (!currentChannel.readReceipt[this.props.user._id]) {
+              readTracker[currentChannel._id] = this.messagesData[
+                currentChannel._id
+              ].length;
+            } else {
+              const currentMessages = this.messagesData[currentChannel._id];
+              const lastRead = new Date(
+                currentChannel.readReceipt[this.props.user._id]
+              );
+
+              for (let j = 0; j < currentMessages.length; j++) {
+                const createdDate = new Date(currentMessages[j].createdAt);
+
+                if (
+                  createdDate > lastRead &&
+                  currentMessages[j].userId !== this.props.user._id
+                ) {
+                  readTracker[currentChannel._id] += 1;
+                }
+              }
+            }
+          }
+          readTracker[teams[0].channels[0]._id] = 0;
+
+          console.log(readTracker);
 
           for (let i = 0; i < teams.length; i++) {
             this.socket.emit('subscribe', teams[i]._id);
           }
 
-          this.socket.on('newMessage', (newMessage) => {
-            console.log('new message received');
-          });
-
           this.setState({
             teams,
             channels: teams[0].channels,
             messages: [...this.messagesData[teams[0].channels[0]._id]],
+            readTracker: readTracker,
           });
         }
       }
@@ -79,12 +122,16 @@ class MainContainer extends Component {
     this.messagesData[newTeam.channels[0]._id] = [];
     this.socket.emit('subscribe', newTeam._id);
 
+    const readTracker = { ...this.state.readTracker };
+    readTracker[newTeam.channels[0]._id] = 0;
+
     this.setState({
       teams: [...this.state.teams, newTeam],
       currentTeamIdx: this.state.teams.length,
       channels: newTeam.channels,
       currentChannelIdx: 0,
       messages: [...this.messagesData[newTeam.channels[0]._id]],
+      readTracker,
     });
   }
 
@@ -95,15 +142,33 @@ class MainContainer extends Component {
     newTeams[currentTeamIdx] = teamWithNewChannel;
     this.messagesData[newChannel._id] = [];
 
+    const readTracker = { ...this.state.readTracker };
+    readTracker[newChannel._id] = 0;
+
     this.setState({
       teams: newTeams,
       channels: newTeams[currentTeamIdx].channels,
       currentChannelIdx: newTeams[currentTeamIdx].channels.length - 1,
       messages: [...this.messagesData[newChannel._id]],
+      readTracker,
     });
   }
 
-  handleSwitchTeam(selectedTeam) {
+  async handleSwitchTeam(selectedTeam) {
+    // whenever I switch team, marks the general channel of that team as read
+    axios.post(
+      '/api/teams/markAsRead',
+      {
+        channelId: this.state.teams[selectedTeam].channels[0]._id,
+        teamId: this.state.teams[selectedTeam]._id,
+      },
+      { headers: requests.setTokenHeadersOptions() }
+    );
+
+    const readTracker = { ...this.state.readTracker };
+    readTracker[this.state.teams[selectedTeam].channels[0]._id] = 0;
+    console.log(readTracker);
+
     this.setState({
       currentTeamIdx: selectedTeam,
       channels: this.state.teams[selectedTeam].channels,
@@ -111,16 +176,30 @@ class MainContainer extends Component {
       messages: [
         ...this.messagesData[this.state.teams[selectedTeam].channels[0]._id],
       ],
+      readTracker,
     });
   }
 
   async handleSwitchChannel(selectedChannel) {
-    console.log(messagesData);
+    // whenever I switch channel, set the read receipt for that channel
+    axios.post(
+      '/api/teams/markAsRead',
+      {
+        channelId: this.state.channels[selectedChannel]._id,
+        teamId: this.state.teams[this.state.currentTeamIdx]._id,
+      },
+      { headers: requests.setTokenHeadersOptions() }
+    );
+
+    const readTracker = { ...this.state.readTracker };
+    readTracker[this.state.channels[selectedChannel]._id] = 0;
+
     this.setState({
       currentChannelIdx: selectedChannel,
       messages: [
         ...this.messagesData[this.state.channels[selectedChannel]._id],
       ],
+      readTracker,
     });
   }
 
@@ -137,6 +216,7 @@ class MainContainer extends Component {
       channels,
       currentChannelIdx,
       messages,
+      readTracker,
     } = this.state;
     return (
       <Grid container spacing={0}>
@@ -151,6 +231,7 @@ class MainContainer extends Component {
         </Grid>
         <Grid item lg={3}>
           <Channels
+            readTracker={readTracker}
             channels={channels}
             currentTeam={teams[currentTeamIdx]}
             ownerId={user._id}

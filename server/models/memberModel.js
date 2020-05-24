@@ -11,6 +11,11 @@ const memberSchema = new mongoose.Schema({
     required: [true, 'A member must belong to a team.'],
     ref: 'Team',
   },
+  owner: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
 });
 
 memberSchema.virtual('teams', {

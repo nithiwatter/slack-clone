@@ -11,7 +11,10 @@ exports.getTeams = async (req, res, next) => {
       .populate('channels')
       .populate('channelIds');
 
-    const inviteeTeamsPromise = Member.find({ userId: req.user._id }).populate({
+    const inviteeTeamsPromise = Member.find({
+      userId: req.user._id,
+      owner: false,
+    }).populate({
       path: 'teams',
       populate: { path: 'channels' },
     });
@@ -20,8 +23,7 @@ exports.getTeams = async (req, res, next) => {
       teamsPromise,
       inviteeTeamsPromise,
     ]);
-    console.log(teams);
-    console.log(inviteeTeamsUnformatted);
+
     const inviteeTeams = [];
     for (let i = 0; i < inviteeTeamsUnformatted.length; i++) {
       inviteeTeams.push(inviteeTeamsUnformatted[i].teams[0]);
@@ -44,13 +46,19 @@ exports.createTeam = async (req, res, next) => {
       return next(new AppError('A team with this name already exists.', 400));
     }
     let team = new Team({ name, ownerId });
-    let channel = new Channel({ name: 'general', teamId: team._id });
-    await Promise.all([team.save(), channel.save()]);
+    let channel = new Channel({
+      name: 'general',
+      teamId: team._id,
+      readReceipt: { [ownerId]: Date.now() },
+    });
+    let member = new Member({ userId: ownerId, teamId: team._id, owner: true });
+    await Promise.all([team.save(), channel.save(), member.save()]);
     team = team.toObject();
     team.channels = [channel];
     res.status(201).json({
       status: 'success',
       team,
+      member,
     });
   } catch (err) {
     next(err);

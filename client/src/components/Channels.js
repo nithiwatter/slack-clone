@@ -31,6 +31,9 @@ const styles = (theme) => ({
       ...theme.typography.subtitle2,
     },
   },
+  tracker: {
+    backgroundColor: theme.palette.info.main,
+  },
   channels: {
     backgroundColor: theme.palette.grey['700'],
     color: 'white',
@@ -95,6 +98,7 @@ class Channels extends Component {
       handleSwitchChannel,
       currentChannelIdx,
       ownerId,
+      readTracker,
     } = this.props;
 
     const { open, err, channelName } = this.state;
@@ -144,6 +148,9 @@ class Channels extends Component {
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText primary={channel.name} />
+                  <Avatar className={classes.tracker}>
+                    {readTracker[channel._id]}
+                  </Avatar>
                 </ListItem>
               ))}
             </List>
