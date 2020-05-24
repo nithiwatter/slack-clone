@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Comment } from 'semantic-ui-react';
+// import { Comment } from 'semantic-ui-react';
 import Avatar from '@material-ui/core/Avatar';
 import axios from 'axios';
 import requests from '../utils/requests';
@@ -38,16 +38,31 @@ const styles = (theme) => ({
   input: {
     gridRow: '3',
     marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
     marginLeft: '2%',
     width: '96%',
   },
   inputField: {},
   icon: { backgroundColor: theme.palette.primary.main },
+  commentContainer: {
+    marginLeft: theme.spacing(3),
+    marginTop: theme.spacing(2),
+  },
   comment: {
     display: 'flex',
     alignItems: 'center',
-    marginLeft: theme.spacing(3),
+  },
+  author: {
+    fontWeight: 200,
+    fontSize: '0.8rem',
+  },
+  bubble: {
+    borderRadius: '10px',
+    fontWeight: 700,
+    fontSize: '1rem',
+    padding: '10px',
+    backgroundColor: theme.palette.info.dark,
+    color: 'white',
   },
 });
 
@@ -103,29 +118,30 @@ class Messages extends Component {
             onKeyPress={this.handleSubmit}
           />
           <div className={classes.messageContainer}>
-            <Comment.Group>
+            <div>
               {messages.map((message, idx) => (
-                <div key={message._id} className={classes.comment}>
-                  <Avatar
-                    style={{ marginRight: '1rem' }}
-                    className={classes.icon}
-                  >
-                    {message.users[0].username[0]}
-                  </Avatar>
-                  <Comment>
-                    <Comment.Content>
-                      <Comment.Author as="a">
-                        {message.users[0].username}
-                      </Comment.Author>
-                      <Comment.Metadata>
-                        <div>{message.createdAt}</div>
-                      </Comment.Metadata>
-                      <Comment.Text>{message.text}</Comment.Text>
-                    </Comment.Content>
-                  </Comment>
+                <div key={message._id}>
+                  <div className={classes.commentContainer}>
+                    <div className={classes.comment}>
+                      <Avatar
+                        style={{ marginRight: '1rem' }}
+                        className={classes.icon}
+                      >
+                        {message.users[0].username[0]}
+                      </Avatar>
+
+                      <div className={classes.bubble}>
+                        <div className={classes.author}>
+                          {message.users[0].username}
+                        </div>
+                        {message.text}
+                      </div>
+                    </div>
+                    <p style={{ margin: 0 }}>{message.createdAt}</p>
+                  </div>
                 </div>
               ))}
-            </Comment.Group>
+            </div>
           </div>
         </div>
       </div>

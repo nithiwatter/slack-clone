@@ -7,6 +7,7 @@ import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import SimpleDialog from './SimpleDialog';
 import axios from 'axios';
+import Badge from '@material-ui/core/Badge';
 import requests from '../utils/requests';
 
 const styles = (theme) => ({
@@ -85,6 +86,7 @@ class Teams extends Component {
       classes,
       handleSwitchTeam,
       ownerId,
+      notiTracker,
     } = this.props;
     const { open, err, teamName } = this.state;
     return (
@@ -111,17 +113,23 @@ class Teams extends Component {
           {teams.map((team, idx) => (
             <Grid key={team._id} item xs={12} container justify="center">
               <IconButton onClick={() => handleSwitchTeam(idx)}>
-                <Avatar
-                  className={
-                    idx === currentTeamIdx
-                      ? classes.chosenTeam
-                      : team.ownerId === ownerId
-                      ? classes.teamIcons
-                      : classes.inviteeIcons
-                  }
+                <Badge
+                  color="secondary"
+                  overlap="circle"
+                  badgeContent={notiTracker[team._id]}
                 >
-                  {team.name[0]}
-                </Avatar>
+                  <Avatar
+                    className={
+                      idx === currentTeamIdx
+                        ? classes.chosenTeam
+                        : team.ownerId === ownerId
+                        ? classes.teamIcons
+                        : classes.inviteeIcons
+                    }
+                  >
+                    {team.name[0]}
+                  </Avatar>
+                </Badge>
               </IconButton>
             </Grid>
           ))}

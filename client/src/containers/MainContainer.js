@@ -66,10 +66,11 @@ class MainContainer extends Component {
           );
 
           Object.assign(this.messagesData, dataM.data);
-          console.log(dataM.data);
 
           // tracking read receipt
           const readTracker = {};
+          const notiTracker = {};
+          console.log('-----');
           console.log(channels);
           for (let i = 0; i < channels.length; i++) {
             // just invited to the team, so no read receipt yet
@@ -87,7 +88,8 @@ class MainContainer extends Component {
 
               for (let j = 0; j < currentMessages.length; j++) {
                 const createdDate = new Date(currentMessages[j].createdAt);
-
+                console.log(createdDate);
+                console.log(lastRead);
                 if (
                   createdDate > lastRead &&
                   currentMessages[j].userId !== this.props.user._id
@@ -100,6 +102,17 @@ class MainContainer extends Component {
           readTracker[teams[0].channels[0]._id] = 0;
 
           console.log(readTracker);
+          for (let i = 0; i < channels.length; i++) {
+            const currentChannel = channels[i];
+            if (!notiTracker[currentChannel.teamId]) {
+              notiTracker[currentChannel.teamId] =
+                readTracker[currentChannel._id];
+            } else {
+              notiTracker[currentChannel.teamId] +=
+                readTracker[currentChannel._id];
+            }
+            console.log(notiTracker);
+          }
 
           for (let i = 0; i < teams.length; i++) {
             this.socket.emit('subscribe', teams[i]._id);
@@ -110,6 +123,7 @@ class MainContainer extends Component {
             channels: teams[0].channels,
             messages: [...this.messagesData[teams[0].channels[0]._id]],
             readTracker: readTracker,
+            notiTracker: notiTracker,
           });
         }
       }
@@ -125,6 +139,9 @@ class MainContainer extends Component {
     const readTracker = { ...this.state.readTracker };
     readTracker[newTeam.channels[0]._id] = 0;
 
+    const notiTracker = { ...this.state.notiTracker };
+    notiTracker[newTeam._id] = 0;
+
     this.setState({
       teams: [...this.state.teams, newTeam],
       currentTeamIdx: this.state.teams.length,
@@ -132,10 +149,15 @@ class MainContainer extends Component {
       currentChannelIdx: 0,
       messages: [...this.messagesData[newTeam.channels[0]._id]],
       readTracker,
+      notiTracker,
     });
   }
 
   handleCacheChannel(newChannel, currentTeamIdx) {
+    this.socket.emit('createChannel', [
+      newChannel,
+      this.state.teams[currentTeamIdx]._id,
+    ]);
     const teamWithNewChannel = { ...this.state.teams[currentTeamIdx] };
     teamWithNewChannel.channels = [...teamWithNewChannel.channels, newChannel];
     const newTeams = [...this.state.teams];
@@ -166,8 +188,10 @@ class MainContainer extends Component {
     );
 
     const readTracker = { ...this.state.readTracker };
+    const notiTracker = { ...this.state.notiTracker };
+    notiTracker[this.state.teams[selectedTeam]._id] -=
+      readTracker[this.state.teams[selectedTeam].channels[0]._id];
     readTracker[this.state.teams[selectedTeam].channels[0]._id] = 0;
-    console.log(readTracker);
 
     this.setState({
       currentTeamIdx: selectedTeam,
@@ -177,6 +201,7 @@ class MainContainer extends Component {
         ...this.messagesData[this.state.teams[selectedTeam].channels[0]._id],
       ],
       readTracker,
+      notiTracker,
     });
   }
 
@@ -192,6 +217,9 @@ class MainContainer extends Component {
     );
 
     const readTracker = { ...this.state.readTracker };
+    const notiTracker = { ...this.state.notiTracker };
+    notiTracker[this.state.channels[selectedChannel].teamId] -=
+      readTracker[this.state.channels[selectedChannel]._id];
     readTracker[this.state.channels[selectedChannel]._id] = 0;
 
     this.setState({
@@ -200,6 +228,7 @@ class MainContainer extends Component {
         ...this.messagesData[this.state.channels[selectedChannel]._id],
       ],
       readTracker,
+      notiTracker,
     });
   }
 
@@ -217,6 +246,7 @@ class MainContainer extends Component {
       currentChannelIdx,
       messages,
       readTracker,
+      notiTracker,
     } = this.state;
     return (
       <Grid container spacing={0}>
@@ -227,10 +257,12 @@ class MainContainer extends Component {
             currentTeamIdx={currentTeamIdx}
             handleCache={this.handleCacheTeam}
             handleSwitchTeam={this.handleSwitchTeam}
+            notiTracker={notiTracker}
           ></Teams>
         </Grid>
         <Grid item lg={3}>
           <Channels
+            socket={this.socket}
             readTracker={readTracker}
             channels={channels}
             currentTeam={teams[currentTeamIdx]}

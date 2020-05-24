@@ -35,6 +35,10 @@ class InviteButton extends Component {
         },
         { headers: requests.setTokenHeadersOptions() }
       );
+      this.props.socket.emit('invite', [
+        this.props.currentTeam,
+        this.state.inviteeName,
+      ]);
       this.setState({
         open: false,
         err: false,

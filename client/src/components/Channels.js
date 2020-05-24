@@ -120,7 +120,10 @@ class Channels extends Component {
               justify="flex-end"
               className={classes.buttons}
             >
-              <InviteButton currentTeam={currentTeam}></InviteButton>
+              <InviteButton
+                currentTeam={currentTeam}
+                socket={this.props.socket}
+              ></InviteButton>
               <IconButton
                 className={classes.addButton}
                 size="small"

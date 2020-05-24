@@ -28,7 +28,15 @@ io.on('connection', (socket) => {
 
   // A simple chat message sent by client (will include serverId on the object)
   socket.on('message', (message) => {
-    io.in(message[1]).emit('newMessage', message[0]);
+    io.in(message[1]).emit('newMessage', [message[0], message[1]]);
+  });
+
+  socket.on('createChannel', (newChannel) => {
+    socket.broadcast.to(newChannel[1]).emit('channelCreated', newChannel);
+  });
+
+  socket.on('invite', (newTeam) => {
+    socket.broadcast.emit('newInvitation', newTeam);
   });
 
   socket.on('disconnect', () => {
